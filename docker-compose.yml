@@ -1,0 +1,42 @@
+services:
+
+  postgres:
+    image: postgres:16
+    container_name: db_container1
+    environment:
+      POSTGRES_USER: harshal
+      POSTGRES_PASSWORD: testing101
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pg_admin_container1
+    ports:
+      - "5050:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+
+  # sqlserver:
+  #   image: mcr.microsoft.com/mssql/server:2022-latest
+  #   container_name: sqlserver_container1
+  #   environment:
+  #     ACCEPT_EULA: "Y"
+  #     MSSQL_SA_PASSWORD: "Testing101!"
+  #   ports:
+  #     - "1433:1433"
+  #   volumes:
+  #     - sqlserverdata:/var/opt/mssql
+
+  # adminer:
+  #   image: adminer
+  #   container_name: adminer_container1
+  #   ports:
+  #     - "8080:8080"
+
+volumes:
+  pgdata:
+  # sqlserverdata:

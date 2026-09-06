@@ -2,11 +2,11 @@ import pandas as pd
 from sqlalchemy import create_engine
 
 
-username = "harshal"
-password = "testing101"
+username = "kamakshi"
+password = "kamshi"
 port = "5432"
-db_name = "harshal"
-host="localhost"
+db_name = "postgres"
+host="localhost"   # "postgres" (the compose service name) only resolves inside the Docker network
 
 
 connection_string = f"postgresql+psycopg2://{username}:{password}@{host}:{port}/{db_name}"

@@ -2,10 +2,10 @@ services:
 
   postgres:
     image: postgres:16
-    container_name: db_container1
+    container_name: db_container_postgres
     environment:
-      POSTGRES_USER: harshal
-      POSTGRES_PASSWORD: testing101
+      POSTGRES_USER: kamakshi
+      POSTGRES_PASSWORD: kamshi
     ports:
       - "5432:5432"
     volumes:

@@ -1,0 +1,13 @@
+# Dependencies for the api module (home.py).
+#
+#   pip install -r requirements.txt
+#
+# The db module's own requirements are pulled in via -r, since home.py
+# reuses the SQLAlchemy engine from db/connect.py.
+-r ../db/requirements.txt
+
+# Web framework serving the endpoints
+fastapi~=0.141.1
+
+# ASGI server that runs the app: uvicorn home:app --reload
+uvicorn~=0.52.4

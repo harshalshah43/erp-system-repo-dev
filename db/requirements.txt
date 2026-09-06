@@ -1,0 +1,17 @@
+# Dependencies for the db module (connect.py, operations.py).
+#
+#   pip install -r requirements.txt
+#
+# The ~= pin means "this minor version, newer patches allowed" -- e.g.
+# SQLAlchemy 2.0.53 is fine, 2.1 is not. That keeps the module from
+# breaking on an unrelated upgrade.
+
+# Engine + text() used by connect.py and operations.py
+SQLAlchemy~=2.0.52
+
+# PostgreSQL driver behind the postgresql+psycopg2:// connection string.
+# The -binary build ships precompiled wheels, so no local libpq/compiler needed.
+psycopg2-binary~=2.9.12
+
+# Only used by connect.py's read_sql demo block.
+pandas~=2.3.3

@@ -1,0 +1,10 @@
+
+pandas==2.3.3          # show() returns query results as DataFrames
+SQLAlchemy==2.0.52     # create_engine, text(), engine.begin() transactions
+psycopg2-binary==2.9.12  # PostgreSQL driver behind postgresql+psycopg2://
+
+
+fastapi~=0.141.1
+
+# ASGI server that runs the app: uvicorn home:app --reload
+uvicorn~=0.52.4

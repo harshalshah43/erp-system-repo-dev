@@ -13,6 +13,8 @@ connection_string = f"postgresql+psycopg2://{username}:{password}@{host}:{port}/
 
 engine = create_engine(connection_string)
 
+print("Engine created")
+
 # Only runs when you execute this file directly (python connect.py),
 # not when another module does `from connect import engine`.
 if __name__ == "__main__":

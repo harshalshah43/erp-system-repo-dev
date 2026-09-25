@@ -62,3 +62,81 @@ def products():
 
         return html
 
+@app.get("/orders",response_class=HTMLResponse)
+def orders():
+    with engine.connect()as conn:
+        query=  """
+                Select * from ecom.Orders Order By OrderID;
+                """
+        rows= conn.execute(text(query)).mappings().all()
+
+        html="""
+        <html>
+            <head>
+                <title>Orders</title>
+            </head>
+            <body>
+                <h1>Orders</h1>
+                <table border="1">
+                    <th>Order ID</th>
+                    <th>Product ID</th>
+                    <th>Order Date</th>
+                    <th>Quantity Ordered</th>
+        """
+        for row in rows:
+            html += f"""
+                    <tr>
+
+                        <td>{row['orderid']}</td>
+                        <td>{row['productid']}</td>
+                        <td>{row['order_date']}</td>
+                        <td>{row['quantity_ordered']}</td>
+
+                    </tr>
+                    """
+        html += """    
+                </table>
+            </body>
+        </html>
+        """
+
+        return html
+
+@app.get("/suppliers",response_class=HTMLResponse)
+def suppliers():
+    with engine.connect()as conn:
+        query=  """
+                Select * from ecom.Suppliers Order By SupplierID;
+                """
+        rows= conn.execute(text(query)).mappings().all()
+
+        html="""
+        <html>
+            <head>
+                <title>Suppliers</title>
+            </head>
+            <body>
+                <h1>Suppliers</h1>
+                <table border="1">
+                    <th>Supplier ID</th>
+                    <th>Supplier Name</th>
+                    <th>Contact Email</th>
+        """
+        for row in rows:
+            html += f"""
+                    <tr>
+
+                        <td>{row['supplierid']}</td>
+                        <td>{row['supplier_name']}</td>
+                        <td>{row['contact_email']}</td>
+
+                    </tr>
+                    """
+        html += """    
+                </table>
+            </body>
+        </html>
+        """
+
+        return html
+

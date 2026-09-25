@@ -119,7 +119,7 @@ def suppliers():
                 <h1>Suppliers</h1>
                 <table border="1">
                     <th>Supplier ID</th>
-                    <th>SupplierName</th>
+                    <th>Supplier Name</th>
                     <th>Contact Email</th>
         """
         for row in rows:

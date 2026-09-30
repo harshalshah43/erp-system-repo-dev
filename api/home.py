@@ -1,4 +1,4 @@
-from fastapi import FastAPI,Request,Form
+from fastapi import FastAPI,Request,Form,HTTPException
 from fastapi.responses import HTMLResponse,JSONResponse
 from fastapi.templating import Jinja2Templates
 
@@ -7,7 +7,7 @@ from pathlib import Path # Any future packages must be imported above this line
 import sys
 sys.path.append(str(Path(__file__).resolve().parent.parent /"db"))
 from connect import engine
-from operations import insert_product
+from operations import insert_product, update_product
 
 
 app = FastAPI(title = "My ERP System")
@@ -26,7 +26,7 @@ def about():
     return {'message':'Welcome to about page'}
 
 @app.get("/products",response_class = HTMLResponse)
-def products(): 
+def products(request:Request): 
     # return "<h1>Welcome to About Page</h1>"
     with engine.connect() as conn:
         query = """
@@ -34,41 +34,42 @@ def products():
                 """
         rows = conn.execute(text(query)).mappings().all()
         
-        html = """
-        <html>
-            <head>
-                <title>Products</title>
-            </head>
-            <body>
-                <h1>Products</h1>
-                <table border = "1">
-                    <tr>
-                        <th>ProductID</th>
-                        <th>Product Name</th>
-                        <th>Price</th>
-                        <th>Stock Qty</th>
-                        <th>Supplier ID</th>
-                    </tr>
-        """
+        return templates.TemplateResponse(request,'product.html',{'products':rows})
+        # html = """
+        # <html>
+        #     <head>
+        #         <title>Products</title>
+        #     </head>
+        #     <body>
+        #         <h1>Products</h1>
+        #         <table border = "1">
+        #             <tr>
+        #                 <th>ProductID</th>
+        #                 <th>Product Name</th>
+        #                 <th>Price</th>
+        #                 <th>Stock Qty</th>
+        #                 <th>Supplier ID</th>
+        #             </tr>
+        # """
 
-        for row in rows:
-            html += f"""
-                    <tr>
-                        <td>{row['productid']}</td>
-                        <td>{row['productname']}</td>
-                        <td>{row['price']}</td>
-                        <td>{row['stock_quantity']}</td>
-                        <td>{row['supplierid']}</td>
-                    </tr>
-                    """
+        # for row in rows:
+        #     html += f"""
+        #             <tr>
+        #                 <td>{row['productid']}</td>
+        #                 <td>{row['productname']}</td>
+        #                 <td>{row['price']}</td>
+        #                 <td>{row['stock_quantity']}</td>
+        #                 <td>{row['supplierid']}</td>
+        #             </tr>
+        #             """
 
-        html += """           
-                </table>
-            </body>
-        </html>
-        """
+        # html += """           
+        #         </table>
+        #     </body>
+        # </html>
+        # """
 
-        return html
+        # return html
 
 @app.get("/product/add",response_class = HTMLResponse)
 def product_form(request:Request):
@@ -96,13 +97,69 @@ def product_add(
             supplier_id=supplier_id,
         )
         return f"""<h1>Product added successfully! (ID: {new_id})</h1>
-                <a href = "products/"><button type = 'button'>Products</button></a>
+                <a href = "/products"><button type = 'button'>Products</button></a>
                 """
     except Exception as e:
         return templates.TemplateResponse(
             request,
             "product_form.html",
             {"error": str(e)}
+        )
+
+@app.get("/product/edit/{product_id}", response_class=HTMLResponse)
+def product_edit_form(request: Request, product_id: int):
+    with engine.connect() as conn:
+        query = "select * from ecom.Product where ProductID = :id"
+        row = conn.execute(text(query), {"id": product_id}).mappings().first()
+
+    if row is None:
+        raise HTTPException(status_code=404, detail="Product not found")
+
+    return templates.TemplateResponse(
+        request,
+        'product_form.html',
+        context = {'product': row}
+    )
+
+@app.post("/product/edit/{product_id}", response_class=HTMLResponse)
+def product_edit(
+    request: Request,
+    product_id: int,
+    product_name: str = Form(...),
+    price: float = Form(...),
+    stock_quantity: int = Form(...),
+    supplier_id: int = Form(...),
+):
+    try:
+        count = update_product(
+            product_id=product_id,
+            product_name=product_name,
+            price=price,
+            stock_quantity=stock_quantity,
+            supplier_id=supplier_id,
+        )
+        if count == 0:
+            raise HTTPException(status_code=404, detail="Product not found")
+        return f"""<h1>Product updated successfully! (ID: {product_id})</h1>
+                <a href = "/products"><button type = 'button'>Products</button></a>
+                """
+    except HTTPException:
+        raise
+    except Exception as e:
+        # Re-show the form with what the user typed, so nothing is lost
+        return templates.TemplateResponse(
+            request,
+            "product_form.html",
+            {
+                "error": str(e),
+                "product": {
+                    "productid": product_id,
+                    "productname": product_name,
+                    "price": price,
+                    "stock_quantity": stock_quantity,
+                    "supplierid": supplier_id,
+                },
+            }
         )
 
 @app.get("/orders",response_class = HTMLResponse)

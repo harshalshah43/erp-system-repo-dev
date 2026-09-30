@@ -1,0 +1,24 @@
+<html>
+        <head>
+            <title>Orders</title>
+        </head>
+        <body>
+            <h1>Orders</h1>
+            <table border = "1">
+                <tr>
+                    <th>OrderID</th>
+                    <th>ProductID</th>
+                    <th>Order Date</th>
+                    <th>Quantity ordered</th>
+                </tr>
+                {% for order in orders %}
+                 <tr>
+                    <td>{{order.orderid}}</td>
+                    <td>{{order.productid}}</td>
+                    <td>{{order.order_date}}</td>
+                    <td>{{order.quantity_ordered}}</td>
+                </tr>
+                {% endfor %}    
+            </table>
+        </body>
+    </html>

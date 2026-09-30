@@ -1,0 +1,29 @@
+        <html>
+            <head>
+                <title>Orders</title>
+            </head>
+            <body>
+                <h1>Orders</h1>
+                <table border="1">
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Product ID</th>
+                        <th>Order Date</th>
+                        <th>Quantity Ordered</th>
+                    </tr>
+                    {% for order in orders %}
+                    <tr>
+                        <td>{{order.orderid}}</td>
+                        <td>{{order.productid}}</td>
+                        <td>{{order.order_date}}</td>
+                        <td>{{order.quantity_ordered}}</td>
+
+                    </tr>
+                    {% endfor %}
+                </table>
+                
+                <a href="/orders/add" style="display: inline-block; margin-top: 20px;"><button type="button">Add a new Order</button></a>
+                
+            </body>
+        </html>
+

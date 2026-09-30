@@ -52,9 +52,9 @@ def insert_supplier(supplier_name, contact_email):
 
 
     #Update
-def update_supplier(supplier_id, supplier_name=None, contact_email=None):
+def update_supplier(supplierid, supplier_name=None, contact_email=None):
     """Update the fields that were passed in. Returns rows affected."""
-    fields, params = [], {"id": supplier_id}
+    fields, params = [], {"id": supplierid}
 
     if supplier_name is not None:
         fields.append("Supplier_Name = :name")
@@ -71,19 +71,19 @@ def update_supplier(supplier_id, supplier_name=None, contact_email=None):
 
 
     #Delete
-def delete_supplier(supplier_id):
+def delete_supplier(supplierid):
     """Delete a supplier.
 
     FK_SupplierID is ON DELETE NO ACTION, so this fails while any product
     still points at the supplier -- delete those products first.
     """
     sql = f"DELETE FROM {SCHEMA}.Suppliers WHERE SupplierID = :id"
-    return _write(sql, {"id": supplier_id})
+    return _write(sql, {"id": supplierid})
 
 
 #Orders
     #Insert
-def insert_order(product_id, quantity_ordered, order_date=None):
+def insert_order(productid, quantity_ordered, order_date=None):
     """Add an order and return the generated OrderID.
 
     order_date falls back to the CURRENT_DATE default when left as None.
@@ -92,18 +92,18 @@ def insert_order(product_id, quantity_ordered, order_date=None):
     if order_date is None:
         sql = f"""
             INSERT INTO {SCHEMA}.Orders (ProductID, Quantity_ordered)
-            VALUES (:product_id, :qty)
+            VALUES (:productid, :qty)
             RETURNING OrderID
         """
-        params = {"product_id": product_id, "qty": quantity_ordered}
+        params = {"productid": productid, "qty": quantity_ordered}
     else:
         sql = f"""
             INSERT INTO {SCHEMA}.Orders (ProductID, Order_Date, Quantity_ordered)
-            VALUES (:product_id, :order_date, :qty)
+            VALUES (:productid, :order_date, :qty)
             RETURNING OrderID
         """
         params = {
-            "product_id": product_id,
+            "productid": productid,
             "order_date": order_date,
             "qty": quantity_ordered,
         }
@@ -116,8 +116,8 @@ def update_order(order_id, product_id=None, quantity_ordered=None, order_date=No
     fields, params = [], {"id": order_id}
 
     if product_id is not None:
-        fields.append("ProductID = :product_id")
-        params["product_id"] = product_id
+        fields.append("ProductID = :productid")
+        params["productid"] = productid
     if quantity_ordered is not None:
         fields.append("Quantity_ordered = :qty")
         params["qty"] = quantity_ordered
@@ -162,10 +162,10 @@ def insert_product(product_name, price, stock_quantity, supplier_id):
 
 
     #Update
-def update_product(product_id, product_name=None, price=None,
+def update_product(productid, product_name=None, price=None,
                    stock_quantity=None, supplier_id=None):
     """Update the fields that were passed in. Returns rows affected."""
-    fields, params = [], {"id": product_id}
+    fields, params = [], {"id": productid}
 
     if product_name is not None:
         fields.append("ProductName = :name")
@@ -187,7 +187,7 @@ def update_product(product_id, product_name=None, price=None,
     return _write(sql, params)
 
 
-def change_stock(product_id, delta):
+def change_stock(productid, delta):
     """Add `delta` to stock_quantity -- pass a negative value to sell stock.
 
     Chk_Stockqty rejects the update if it would take stock below zero.
@@ -197,25 +197,25 @@ def change_stock(product_id, delta):
         SET stock_quantity = stock_quantity + :delta
         WHERE ProductID = :id
     """
-    return _write(sql, {"id": product_id, "delta": delta})
+    return _write(sql, {"id": productid, "delta": delta})
 
 
     #Delete
-def delete_product(product_id):
+def delete_product(productid):
     """Delete a product.
 
     The Orders FK is ON DELETE CASCADE, so that product's orders go too.
     """
     sql = f"DELETE FROM {SCHEMA}.Product WHERE ProductID = :id"
-    return _write(sql, {"id": product_id})
+    return _write(sql, {"id": productid})
 
 
 if __name__ == "__main__":
     #Create
     supplier_id = insert_supplier("Test Supplier", "test.supplier@gmail.com")
     product_id = insert_product("Bonds", 2500, 40, supplier_id)
-    order_id = insert_order(product_id, 5)
-    print(f"Inserted supplier={supplier_id}, product={product_id}, order={order_id}")
+    order_id = insert_order(productid, 5)
+    print(f"Inserted supplier={supplierid}, product={productid}, order={order_id}")
 
     #Read
     print("\nSuppliers:\n", show("suppliers"))
@@ -223,13 +223,13 @@ if __name__ == "__main__":
     print("\nOrders:\n", show("orders"))
 
     #Update
-    print("\nSupplier rows updated:", update_supplier(supplier_id, supplier_name="Test Supplier Ltd"))
-    print("Product rows updated:", update_product(product_id, price=2750))
-    print("Stock rows updated:", change_stock(product_id, -5))
+    print("\nSupplier rows updated:", update_supplier(supplierid, supplier_name="Test Supplier Ltd"))
+    print("Product rows updated:", update_product(productid, price=2750))
+    print("Stock rows updated:", change_stock(productid, -5))
     print("Order rows updated:", update_order(order_id, quantity_ordered=8))
     print("\nProduct after updates:\n", show("product"))
 
     #Delete -- order, then product, then supplier, to respect the foreign keys
-    print("\nOrder rows deleted:", delete_order(order_id))
-    print("Product rows deleted:", delete_product(product_id))
-    print("Supplier rows deleted:", delete_supplier(supplier_id))
+    print("\nOrder rows deleted:", delete_order(orderid))
+    print("Product rows deleted:", delete_product(productid))
+    print("Supplier rows deleted:", delete_supplier(supplierid))

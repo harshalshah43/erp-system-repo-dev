@@ -1,0 +1,28 @@
+        <html>
+            <head>
+                <title>Suppliers</title>
+            </head>
+            <body>
+                <h1>Suppliers</h1>
+                <table border="1">
+                    <tr>
+                        <th>Supplier ID</th>
+                        <th>Supplier Name</th>
+                        <th>Contact Email</th>
+                    </tr>
+                    {% for supplier in suppliers %}
+                    <tr>
+
+                        <td>{{supplier.supplierid}}</td>
+                        <td>{{supplier.supplier_name}}</td>
+                        <td>{{supplier.contact_email}}</td>
+
+                    </tr>
+                    {% endfor %}
+                </table>
+                <br>
+                <a href="/suppliers/add"><button type="button">Add a new Supplier</button></a>              
+            </body>
+        </html>
+
+

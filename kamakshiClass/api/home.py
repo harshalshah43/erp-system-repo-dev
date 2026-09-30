@@ -1,142 +1,176 @@
+from datetime import date
+from pydantic import EmailStr
 import sys
-from fastapi import FastAPI
+from fastapi import FastAPI,Request,Form
 from fastapi.responses import HTMLResponse
 from fastapi.responses import JSONResponse
+from fastapi.templating import Jinja2Templates
 from sqlalchemy import text
-
 from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parent.parent/"db"))
 
 from connect import engine
+from operations import insert_product
+from operations import insert_order
+from operations import insert_supplier
+
 app=FastAPI(title = "My ERP System")
-
-@app.get("/",response_class=HTMLResponse)
-def home():
-    return "<h1>Hello World</h1>"
+templates = Jinja2Templates(directory=Path(__file__).resolve().parent / "templates")
 
 
-@app.get("/about",response_class=JSONResponse)
-def about():
-    return {'message':'welcome to about page'}
-
+@app.get("/home",response_class=HTMLResponse)
+def home(request:Request):
+    return templates.TemplateResponse(
+        request,
+        name= "home.html"
+    )
 
 @app.get("/products",response_class=HTMLResponse)
-def products():
+def products(request:Request):
     with engine.connect()as conn:
         query=  """
                 Select * from ecom.Product Order By ProductID;
                 """
         rows= conn.execute(text(query)).mappings().all()
+        return templates.TemplateResponse(
+           request,
+           name = "products.html",
+           context={
+               "products":rows
+           }
+        )
 
-        html="""
-        <html>
-            <head>
-                <title>Products</title>
-            </head>
-            <body>
-                <h1>Products</h1>
-                <table border="1">
-                    <th>Product ID</th>
-                    <th>Product Name</th>
-                    <th>Price</th>
-                    <th>Stock Qty</th>
-                    <th>Supplier ID</th>
-        """
-        for row in rows:
-            html += f"""
-                    <tr>
-
-                        <td>{row['productid']}</td>
-                        <td>{row['productname']}</td>
-                        <td>{row['price']}</td>
-                        <td>{row['stock_quantity']}</td>
-                        <td>{row['supplierid']}</td>
-
-                    </tr>
-                    """
-        html += """    
-                </table>
-            </body>
-        </html>
-        """
-
-        return html
 
 @app.get("/orders",response_class=HTMLResponse)
-def orders():
+def orders(request:Request):
     with engine.connect()as conn:
         query=  """
                 Select * from ecom.Orders Order By OrderID;
                 """
         rows= conn.execute(text(query)).mappings().all()
 
-        html="""
-        <html>
-            <head>
-                <title>Orders</title>
-            </head>
-            <body>
-                <h1>Orders</h1>
-                <table border="1">
-                    <th>Order ID</th>
-                    <th>Product ID</th>
-                    <th>Order Date</th>
-                    <th>Quantity Ordered</th>
-        """
-        for row in rows:
-            html += f"""
-                    <tr>
-
-                        <td>{row['orderid']}</td>
-                        <td>{row['productid']}</td>
-                        <td>{row['order_date']}</td>
-                        <td>{row['quantity_ordered']}</td>
-
-                    </tr>
-                    """
-        html += """    
-                </table>
-            </body>
-        </html>
-        """
-
-        return html
+        return templates.TemplateResponse(
+           request,
+           name = "orders.html",
+           context= {
+               "orders":rows
+           }
+        )
 
 @app.get("/suppliers",response_class=HTMLResponse)
-def suppliers():
+def suppliers(request:Request):
     with engine.connect()as conn:
         query=  """
                 Select * from ecom.Suppliers Order By SupplierID;
                 """
         rows= conn.execute(text(query)).mappings().all()
 
-        html="""
-        <html>
-            <head>
-                <title>Suppliers</title>
-            </head>
-            <body>
-                <h1>Suppliers</h1>
-                <table border="1">
-                    <th>Supplier ID</th>
-                    <th>Supplier Name</th>
-                    <th>Contact Email</th>
+        return templates.TemplateResponse(
+           request,
+           name = "suppliers.html",
+           context= {
+               "suppliers":rows
+           }
+        )
+
+@app.get("/products/add",response_class = HTMLResponse)
+def product_form(request:Request):
+    return templates.TemplateResponse(
+        request,
+        'product_form.html',
+        context = {
+
+        }
+    )
+
+@app.post("/products/add", response_class=HTMLResponse)
+def product_add(
+    request: Request,
+    product_name: str = Form(...),
+    price: float = Form(...),
+    stock_quantity: int = Form(...),
+    supplier_id: int = Form(...),
+):
+    try:
+        new_id = insert_product(
+            product_name=product_name,
+            price=price,
+            stock_quantity=stock_quantity,
+            supplier_id=supplier_id,
+        )
+        return f"""<h1>Product added successfully! (ID: {new_id})</h1>
+               <a href="/products"><button type="button">Products</button></a>
         """
-        for row in rows:
-            html += f"""
-                    <tr>
+    except Exception as e:
+        return templates.TemplateResponse(
+            request,
+            "product_form.html",
+            {"error": str(e)}
+        )
 
-                        <td>{row['supplierid']}</td>
-                        <td>{row['supplier_name']}</td>
-                        <td>{row['contact_email']}</td>
+@app.get("/orders/add",response_class = HTMLResponse)
+def orders_form(request:Request):
+    return templates.TemplateResponse(
+        request,
+        'orders_form.html',
+        context = {
 
-                    </tr>
-                    """
-        html += """    
-                </table>
-            </body>
-        </html>
+        }
+    )
+
+@app.post("/orders/add", response_class=HTMLResponse)
+def orders_add(
+    request: Request,
+    productid: int = Form(...),
+    order_date: date = Form(...),
+    quantity_ordered: int = Form(...),
+):
+    try:
+        new_id = insert_order(
+            productid=productid,
+            order_date=order_date,
+            quantity_ordered=quantity_ordered,
+        )
+        return f"""<h1>Order added successfully! (ID: {new_id})</h1>
+               <a href="/orders"><button type="button">Orders</button></a>
         """
+    except Exception as e:
+        print("ORDER INSERT ERROR:", e)
+        return templates.TemplateResponse(
+            request,
+            "orders_form.html",
+            {"error": str(e)}
+        )
 
-        return html
 
+@app.get("/suppliers/add",response_class = HTMLResponse)
+def suppliers_form(request:Request):
+    return templates.TemplateResponse(
+        request,
+        'suppliers_form.html',
+        context = {
+
+        }
+    )
+
+@app.post("/suppliers/add", response_class=HTMLResponse)
+def supplier_add(
+    request: Request,
+    supplier_name: str = Form(...),
+    contact_email: EmailStr = Form(...),
+):
+    try:
+        new_id = insert_supplier(
+            supplier_name=supplier_name,
+            contact_email=contact_email,
+        )
+        return f"""<h1>Supplier added successfully! (ID: {new_id})</h1>
+               <a href="/suppliers"><button type="button">Suppliers</button></a>
+        """
+    except Exception as e:
+        print("Supplier INSERT ERROR:", e)
+        return templates.TemplateResponse(
+            request,
+            "suppliers_form.html",
+            {"error": str(e)}
+        )

@@ -1,0 +1,20 @@
+<html>
+        <head>
+            <title>Supplier Form - Add New Supplier</title>
+        </head>
+        <body>
+            <h1>Supplier Form - Add New Supplie</h1>
+            <form method="POST" action="/suppliers/add">
+
+                <label>Supplier Name:<br>
+                    <input type="text" name="supplier_name" required>
+                </label><br><br>
+
+                <label>Contact Email:<br>
+                    <input type="email" step="0.01" min="0.01" name="contact_email" required>
+                </label><br><br>
+
+                <button type="submit">Add Supplier</button>
+            </form>
+        </body>
+    </html>

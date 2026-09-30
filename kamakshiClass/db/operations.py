@@ -111,11 +111,11 @@ def insert_order(productid, quantity_ordered, order_date=None):
 
 
     #Update
-def update_order(order_id, product_id=None, quantity_ordered=None, order_date=None):
+def update_order(order_id, productid=None, quantity_ordered=None, order_date=None):
     """Update the fields that were passed in. Returns rows affected."""
     fields, params = [], {"id": order_id}
 
-    if product_id is not None:
+    if productid is not None:
         fields.append("ProductID = :productid")
         params["productid"] = productid
     if quantity_ordered is not None:
@@ -213,7 +213,7 @@ def delete_product(productid):
 if __name__ == "__main__":
     #Create
     supplier_id = insert_supplier("Test Supplier", "test.supplier@gmail.com")
-    product_id = insert_product("Bonds", 2500, 40, supplier_id)
+    productid = insert_product("Bonds", 2500, 40, supplier_id)
     order_id = insert_order(productid, 5)
     print(f"Inserted supplier={supplierid}, product={productid}, order={order_id}")
 

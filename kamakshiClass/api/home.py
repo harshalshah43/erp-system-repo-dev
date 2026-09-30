@@ -1,7 +1,7 @@
 from datetime import date
 from pydantic import EmailStr
 import sys
-from fastapi import FastAPI,Request,Form
+from fastapi import FastAPI,Request,Form,HTTPException
 from fastapi.responses import HTMLResponse
 from fastapi.responses import JSONResponse
 from fastapi.templating import Jinja2Templates
@@ -108,6 +108,27 @@ def product_add(
             {"error": str(e)}
         )
 
+#edit product
+@app.get("/products/edit/{productid}",response_class = HTMLResponse)
+def product_edit_form(request:Request,productid: int):
+    with engine.connect() as con:
+        query="""
+        Select * from ecom.Product where ProductID = :id
+        """
+        row = con.execute(text(query),{"id":productid})
+        row = row.fetchone()
+        print(row)
+        if row is None:
+            raise HTTPException(status_code = 404,detail="Product not found")
+        
+    return templates.TemplateResponse(
+        request,
+        'product_form.html',
+        context = {
+            'product':row
+        }
+    )
+
 @app.get("/orders/add",response_class = HTMLResponse)
 def orders_form(request:Request):
     return templates.TemplateResponse(
@@ -174,3 +195,13 @@ def supplier_add(
             "suppliers_form.html",
             {"error": str(e)}
         )
+
+# @app.get("/suppliers/deleteconfirm",response_class = HTMLResponse)
+# def suppliers_delete_confirmation(request:Request):
+#     return templates.TemplateResponse(
+#         request,
+#         'suppliers_deleteconfirm.html',
+#         context = {
+
+#         }
+#     )

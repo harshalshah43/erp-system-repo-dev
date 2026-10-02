@@ -1,20 +1,23 @@
 <html>
         <head>
-            <title>Supplier Form - Add New Supplier</title>
+            <title>{{ 'Edit Supplier ' ~ supplier.supplierid if supplier and supplier.supplierid else 'Supplier Form - Add New Supplier' }}</title>
         </head>
         <body>
-            <h1>Supplier Form - Add New Supplier</h1>
-            <form method="POST" action="/suppliers/add">
+            <h1>{{ 'Supplier Form - Edit Supplier (ID: ' ~ supplier.supplierid ~ ')' if supplier and supplier.supplierid else 'Supplier Form - Add New Supplier' }}</h1>
+            {% if error %}
+                <p style="color: red;">{{ error }}</p>
+            {% endif %}
+            <form method="POST" action="{{'/suppliers/edit/' ~ supplier.supplierid if supplier and supplier.supplierid else '/suppliers/add'}}">
 
                 <label>Supplier Name:<br>
-                    <input type="text" name="supplier_name" required>
+                    <input type="text" name="supplier_name" required value="{{supplier.supplier_name if supplier else ''}}">
                 </label><br><br>
 
                 <label>Contact Email:<br>
-                    <input type="email" step="0.01" min="0.01" name="contact_email" required>
+                    <input type="email" step="0.01" min="0.01" name="contact_email" required value="{{supplier.contact_email if supplier else ''}}">
                 </label><br><br>
 
-                <button type="submit">Add Supplier</button>
+                <button type="submit">{{ 'Save Changes' if supplier and supplier.supplierid else 'Add Supplier' }}</button>
             </form>
         </body>
     </html>

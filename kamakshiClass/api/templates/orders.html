@@ -3,13 +3,25 @@
                 <title>Orders</title>
             </head>
             <body>
+                <a href="/home"><button type="button">Home</button></a>
+                <a href="/products"><button type="button">Products</button></a>
+                <a href="/suppliers"><button type="button">Suppliers</button></a>
                 <h1>Orders</h1>
+
+                {% if deleted %}
+                <p style="color: red;">Order with ID {{ deleted }} has been deleted.</p>
+                {% endif %}
+
                 <table border="1">
                     <tr>
+
                         <th>Order ID</th>
                         <th>Product ID</th>
                         <th>Order Date</th>
                         <th>Quantity Ordered</th>
+                        <th>To Edit</th>
+                        <th>To Delete</th>
+
                     </tr>
                     {% for order in orders %}
                     <tr>
@@ -17,6 +29,15 @@
                         <td>{{order.productid}}</td>
                         <td>{{order.order_date}}</td>
                         <td>{{order.quantity_ordered}}</td>
+                        <td>
+                            <a href="/orders/edit/{{order.orderid}}"><button type="button">Edit Here</button></a>
+                        </td>
+                        <td>
+                            <form method="POST" action="/orders/delete/{{order.orderid}}" style="display: inline; margin: 0;"
+                                  onsubmit="return confirm('Are you sure you want to delete order {{order.orderid}}?');">
+                                <button type="submit">Delete</button>
+                            </form>
+                        </td>
 
                     </tr>
                     {% endfor %}

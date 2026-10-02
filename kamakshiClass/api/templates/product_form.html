@@ -1,12 +1,15 @@
 <html>
         <head>
-            <title>Product Form - Add New Product</title>
+            <title>{{ 'Edit Product ' ~ product.productid if product and product.productid else 'Product Form - Add New Product' }}</title>
         </head>
         <body>
-            <h1>Product Form - Add New Product</h1>
-            <form method="POST" action="{{'/products/edit' ~ product.productid if product else '/products/add'}}">
-                
-                {{product}}
+            <h1>{{ 'Product Form - Edit Product (ID: ' ~ product.productid ~ ')' if product and product.productid else 'Product Form - Add New Product' }}</h1>
+            {% if error %}
+                <p style="color: red;">{{ error }}</p>
+            {% endif %}
+            
+            <form method="POST" action="{{'/products/edit/' ~ product.productid if product and product.productid else '/products/add'}}">
+
                 <label>Product Name:<br>
                     <input type="text" name="product_name" required value="{{product.productname if product else ''}}">
                 </label><br><br>
@@ -23,7 +26,7 @@
                     <input type="number" min="1" name="supplier_id" required value="{{product.supplierid if product else ''}}">
                 </label><br><br>
 
-                <button type="submit">Add Product</button>
+                <button type="submit">{{ 'Save Changes' if product and product.productid else 'Add Product' }}</button>
             </form>
         </body>
     </html>

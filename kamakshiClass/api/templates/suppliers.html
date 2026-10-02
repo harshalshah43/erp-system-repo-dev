@@ -1,14 +1,28 @@
         <html>
-            <head>
-                <title>Suppliers</title>
-            </head>
+        <head>
+            <title>{{ 'Edit Supplier ' ~ supplier.supplierid if supplier else 'Supplier Form - Add New Supplier' }}</title>
+        </head>
             <body>
+                <a href="/home"><button type="button">Home</button></a>
+                <a href="/products"><button type="button">Products</button></a>
+                <a href="/orders"><button type="button">Orders</button></a>
                 <h1>Suppliers</h1>
+
+                {% if deleted %}
+                    <p style="color: red;">Supplier with ID {{ deleted }} has been deleted.</p>
+                {% endif %}
+                {% if delete_failed %}
+                    <p style="color: red;">Supplier with ID {{ delete_failed }} cannot be deleted because products still belong to it. Delete or reassign those products first.</p>
+                {% endif %}
+
                 <table border="1">
                     <tr>
                         <th>Supplier ID</th>
                         <th>Supplier Name</th>
                         <th>Contact Email</th>
+                        <th>To Edit</th>
+                        <th>To Delete</th>
+
                     </tr>
                     {% for supplier in suppliers %}
                     <tr>
@@ -16,6 +30,15 @@
                         <td>{{supplier.supplierid}}</td>
                         <td>{{supplier.supplier_name}}</td>
                         <td>{{supplier.contact_email}}</td>
+                        <td>
+                            <a href="/suppliers/edit/{{supplier.supplierid}}"><button type="button">Edit Here</button></a>
+                        </td>
+                        <td>
+                            <form method="POST" action="/suppliers/delete/{{supplier.supplierid}}" style="display: inline; margin: 0;"
+                                  onsubmit="return confirm('Are you sure you want to delete supplier {{supplier.supplierid}}? This will fail if any products still belong to this supplier.');">
+                                <button type="submit">Delete</button>
+                            </form>
+                        </td>
 
                     </tr>
                     {% endfor %}

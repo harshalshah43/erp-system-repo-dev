@@ -3,7 +3,13 @@
         <title>Products</title>
     </head>
     <body>
+        <a href="/home"><button type="button">Home</button></a>
+        <a href="/orders"><button type="button">Orders</button></a>
+        <a href="/suppliers"><button type="button">Suppliers</button></a>
         <h1>Products</h1>
+        {% if deleted %}
+            <p style="color: red;">Product with ID {{ deleted }} has been deleted.</p>
+        {% endif %}
         <table border="1">
             <tr>
                 <th>Product ID</th>
@@ -11,6 +17,8 @@
                 <th>Price</th>
                 <th>Stock Qty</th>
                 <th>Supplier ID</th>
+                <th>To Edit</th>
+                <th>To Delete</th>
              </tr>
             {% for product in products %}
                 <tr>
@@ -19,11 +27,19 @@
                         <td>{{product.price}}</td>
                         <td>{{product.stock_quantity}}</td>
                         <td>{{product.supplierid}}</td>
+                        <td>
+                            <a href="/products/edit/{{product.productid}}"><button type="button">Edit Here</button></a>
+                        </td>
+                        <td>
+                            <form method="POST" action="/products/delete/{{product.productid}}" style="display: inline; margin: 0;"
+                                  onsubmit="return confirm('Are you sure you want to delete product {{product.productid}}? Its orders will also be deleted.');">
+                                <button type="submit">Delete</button>
+                            </form>
+                        </td>
                 </tr>
              {% endfor %}
         </table>
                         
-        <a href="/products/add" style="display: inline-block; margin-top: 20px;"><button type="button">Add a new Product</button></a>
-                
+        <a href="/products/add" style="display: inline-block; margin-top: 20px;"><button type="button">Add a new Product</button></a>      
     </body>
 </html>

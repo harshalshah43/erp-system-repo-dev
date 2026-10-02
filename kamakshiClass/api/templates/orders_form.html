@@ -1,30 +1,27 @@
 <html>
         <head>
-            <title>Order Form - Add New Order</title>
+            <title>{{ 'Edit Order ' ~ order.orderid if order and order.orderid else 'Order Form - Add New Order' }}</title>
         </head>
         <body>
-            <h1>Order Form - Add New Order</h1>
-
+            <h1>{{ 'Order Form - Edit Order (ID: ' ~ order.orderid ~ ')' if order and order.orderid else 'Order Form - Add New Order' }}</h1>
             {% if error %}
-            <p style="color: red;">Error: {{ error }}</p>
+                <p style="color: red;">{{ error }}</p>
             {% endif %}
-
-
-            <form method="POST" action="/orders/add">
+            <form method="POST" action="{{'/orders/edit/' ~ order.orderid if order and order.orderid else '/orders/add'}}">
 
                 <label>Product ID:<br>
-                    <input type="number" step="0.01" min="0.01" name="productid" required>
+                    <input type="number" min="1" name="productid" required value="{{order.productid if order else ''}}">
                 </label><br><br>
 
                 <label>Order Date:<br>
-                    <input type="date" min="0" name="order_date" required>
+                    <input type="date" min="0" name="order_date" required value="{{order.order_date if order else ''}}">
                 </label><br><br>
 
                 <label>Quantity Ordered:<br>
-                    <input type="number" min="1" name="quantity_ordered" required>
+                    <input type="number" min="1" name="quantity_ordered" required value="{{order.quantity_ordered if order else ''}}">
                 </label><br><br>
 
-                <button type="submit">Add New Order</button>
+                <button type="submit">{{ 'Save Changes' if order and order.orderid else 'Add Order' }}</button>
             </form>
         </body>
     </html>

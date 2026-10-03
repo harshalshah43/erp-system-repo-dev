@@ -1,6 +1,6 @@
 import pandas as pd
 from sqlalchemy import create_engine
-
+from sqlalchemy import text
 
 username = "harshal"
 password = "testing101"
@@ -28,3 +28,13 @@ if __name__ == "__main__":
         print(df3)
     else:
         print("Sorry! Could not create connection...")
+
+    with engine.connect() as conn:
+        query = """
+        select * from ecom.Product where ProductID = {};
+        """.format(8)
+        row = conn.execute(text(query))
+        print(query)
+        print(row.fetchone())
+
+    

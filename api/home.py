@@ -1,4 +1,4 @@
-from fastapi import FastAPI,Request,Form
+from fastapi import FastAPI,Request,Form,HTTPException
 from fastapi.responses import HTMLResponse,JSONResponse
 from fastapi.templating import Jinja2Templates
 
@@ -104,6 +104,27 @@ def product_add(
             "product_form.html",
             {"error": str(e)}
         )
+
+# product edit get
+@app.get("/product/edit/{product_id}",response_class = HTMLResponse)
+def product_edit_form(request:Request,product_id: int):
+    with engine.connect() as conn:
+        query = """
+        select * from ecom.Product where ProductID = :id;
+        """
+        row = conn.execute(text(query), {"id":product_id})
+        row = row.fetchone()
+        if row is None:
+            raise HTTPException(status_code = 404,detail = "Product not found")
+        
+    return templates.TemplateResponse(
+        request,
+        'product_form.html',
+        context = {
+            'product':row # select * from ecom.Product where ProductID = 8;
+        }
+    ) 
+# product edit post
 
 @app.get("/orders",response_class = HTMLResponse)
 def orders(request:Request): 
